@@ -1,11 +1,16 @@
-import React, { useState, useEffect } from "react";
-import axios from "../axios"; //you can actually change the name of a default import just like i did here.
 import './row.css';
+import React, { useState, useEffect } from "react";
+import YouTube from 'react-youtube';
+import movieTrailer from 'movie-trailer';
+import axios from "../axios"; //you can actually change the name of a default import just like i did here.
+
 const base_url = "https://image.tmdb.org/t/p/original/";
+
 
 
 function Row({ title, fetchUrl, isLargeRow }) {
   const [movies, setMovies] = useState([]);
+  const [trailerUrl, setTrailerUrl] = useState("");
 
   // a snippet of code that makes a request on an api to TMDB
   useEffect(() => {
@@ -18,6 +23,28 @@ function Row({ title, fetchUrl, isLargeRow }) {
     fetchData();
   }, [fetchUrl]);
 
+  const opts = {
+    height: "390",
+    width: "100%",
+    playerVars: {
+        autoplay: 1,
+
+    }
+  }
+
+  const handleClick = (movie) => {
+    if(trailerUrl) {
+        setTrailerUrl('');
+    }else {
+        movieTrailer(movie?.name || "")
+        .then(url => {
+            const urlParams = new URLSearchParams(new URL(url).search);
+            setTrailerUrl(urlParams.get('v'));
+
+        }).catch(error => console.log(error));
+    }
+  }
+
   //console.table(movies);
 
   return (
@@ -28,6 +55,7 @@ function Row({ title, fetchUrl, isLargeRow }) {
         {movies.map((movie) => (
           <img
           key={movie.id}
+          onClick={() => handleClick(movie)}
             className={`row__poster ${isLargeRow && "row__posterLarge"}`}
             src={`${base_url}${isLargeRow ? movie?.poster_path : movie?.backdrop_path}`}
             alt={movie?.name}
@@ -36,6 +64,7 @@ function Row({ title, fetchUrl, isLargeRow }) {
 
         ))}
       </div>
+      {trailerUrl && <YouTube videoId={trailerUrl} opts={opts} />}
     </div>
   );
 }

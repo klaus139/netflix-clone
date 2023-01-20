@@ -4,3 +4,12 @@
 .App{
   background-color: #111;
 }
+.me{
+  color: white;
+  align-content: center;
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  font-weight: 200;
+
+}
